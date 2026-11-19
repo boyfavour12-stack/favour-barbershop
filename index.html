@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Favorite Unisex Salon & Products</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#f8f7f4',
+              100: '#f0ede6',
+              200: '#e0d9cc',
+              300: '#c9bda8',
+              400: '#b09a7e',
+              500: '#9a8063',
+              600: '#8a6f55',
+              700: '#735a47',
+              800: '#5f4b3d',
+              900: '#4f3f35',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+    .dark .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .nav-item.active {
+      background: rgba(255,255,255,0.55);
+      color: #111827;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .dark .nav-item.active {
+      background: rgba(255,255,255,0.12);
+      color: #f9fafb;
+      box-shadow: none;
+    }
+
+    .product-card:hover { transform: translateY(-3px); }
+    .time-slot.selected {
+      background: #9a8063;
+      color: white;
+      border-color: #9a8063;
+    }
+    .dark .time-slot.selected {
+      background: #b09a7e;
+      border-color: #b09a7e;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.25s ease-out; }
+
+    /* ===== LIQUID GLASS SIDEBAR (floating + rounded) ===== */
+    .sidebar {
+      transform: translateX(calc(-100% - 20px));
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 24px;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.65);
+      top: 12px !important;
+      bottom: 12px !important;
+      left: 12px !important;
+      height: auto !important;
+      max-height: calc(100% - 24px);
+    }
+    .dark .sidebar {
+      background: rgba(17, 24, 39, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.45),
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    @media (min-width: 768px) {
+      .sidebar {
+        transform: translateX(0) !important;
+        position: relative !important;
+        top: 12px !important;
+        bottom: 12px !important;
+        left: 12px !important;
+        margin-right: 8px;
+        height: calc(100% - 24px) !important;
+        max-height: calc(100% - 24px);
+      }
+    }
+
+    .sidebar-overlay {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .sidebar-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Glass header */
+    .glass-header {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+    }
+    .dark .glass-header {
+      background: rgba(17, 24, 39, 0.75);
+    }
+
+    /* ===== HOME: hero + gallery ===== */
+    .font-display { font-family: 'Playfair Display', Georgia, serif; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+    }
+    .g-pill.active { background: #111827; color: #fff; border-color: #111827; }
+    .dark .g-pill.active { background: #fff; color: #111827; border-color: #fff; }
+    #gallery-filters::-webkit-scrollbar { display: none; }
+
+    /* Product image */
+    .product-img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-200">
+
+  <!-- Mobile overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 bg-black/40 z-40 md:hidden"></div>
+
+  <div class="flex h-screen overflow-hidden md:p-0">
+
+    <!-- ========== LIQUID GLASS SIDEBAR ========== -->
+    <aside id="sidebar" class="sidebar fixed md:relative z-50 w-[280px] flex-shrink-0 flex flex-col">
+      <!-- Brand -->
+      <div class="p-5 border-b border-white/30 dark:border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+            FU
+          </div>
+          <div class="min-w-0">
+            <p class="font-semibold text-sm truncate">Favorite Unisex</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Salon & Products</p>
+          </div>
+        </div>
+        <button id="close-sidebar" class="md:hidden p-1.5 rounded-lg hover:bg-white/40 dark:hover:bg-white/10">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 overflow-y-auto sidebar-scroll p-3 space-y-6">
+        <div>
+          <p class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Main</p>
+          <ul class="space-y-0.5">
+            <li>
+              <button data-view="dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-white/10 transition">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                Home
+              </button>
+            </li>
+            <li>
+              <button data-view="shop" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-white/10 transition">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                Shop Products
+                <span class="ml-auto bg-brand-100/80 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 text-xs px-2 py-0.5 rounded-full">12</span>
+              </button>
+            </li>
+            <li>
+              <button data-view="booking" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-white/10 transition">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Book Appointment
+              </button>
+            </li>
+            <li>
+              <button data-view="orders" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-white/10 transition">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                My Orders
+                <span id="order-badge" class="ml-auto bg-white/50 dark:bg-white/10 text-gray-600 dark:text-gray-400 text-xs px-2 py-0.5 rounded-full">0</span>
+              </button>
+            </li>
+            <li>
+              <button data-view="contact" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-white/10 transition">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Contact Us
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Status</p>
+          <ul class="space-y-0.5">
+            <li class="flex items-center justify-between px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
+              <span class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span> Open Now
+              </span>
+              <span class="text-xs">9AM – 8PM</span>
+            </li>
+            <li class="flex items-center justify-between px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
+              <span class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span> Walk-ins
+              </span>
+              <span class="text-xs">Welcome</span>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Product Categories</p>
+          <ul class="space-y-0.5 text-sm">
+            <li><button data-view="shop" data-filter="clippers" class="cat-btn w-full text-left px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/10">Clippers & Trimmers</button></li>
+            <li><button data-view="shop" data-filter="oils" class="cat-btn w-full text-left px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/10">Hair Oils & Creams</button></li>
+            <li><button data-view="shop" data-filter="tools" class="cat-btn w-full text-left px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/10">Combs & Brushes</button></li>
+            <li><button data-view="shop" data-filter="kits" class="cat-btn w-full text-left px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/10">Aftercare Kits</button></li>
+            <li><button data-view="shop" data-filter="all" class="cat-btn w-full text-left px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/10">All Products</button></li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Bottom -->
+      <div class="p-4 border-t border-white/30 dark:border-white/10 space-y-2">
+        <button id="theme-toggle" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium bg-white/40 dark:bg-white/10 hover:bg-white/60 dark:hover:bg-white/15 transition">
+          <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span id="theme-label">Dark Mode</span>
+        </button>
+        <div class="flex items-center gap-2 px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400">
+          <div class="w-7 h-7 rounded-full bg-white/50 dark:bg-white/10 flex items-center justify-center text-[10px] font-medium">YOU</div>
+          <div class="truncate">
+            <p class="font-medium text-gray-700 dark:text-gray-300">Guest Customer</p>
+            <p>Oguta, Imo</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="flex-1 overflow-y-auto w-full">
+      <!-- Top bar (glass) -->
+      <header class="glass-header sticky top-0 z-10 border-b border-gray-200/60 dark:border-gray-800/60 px-4 md:px-6 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <button id="open-sidebar" class="md:hidden p-2 -ml-1 rounded-xl hover:bg-white/50 dark:hover:bg-white/10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="min-w-0">
+            <h1 id="page-title" class="text-lg md:text-xl font-semibold tracking-tight truncate">Home</h1>
+            <p id="page-subtitle" class="text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate">Welcome to Favorite Unisex Salon</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="cart-btn" class="relative p-2 rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span id="cart-count" class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-brand-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">0</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="p-4 md:p-6">
+
+        <!-- ===== HOME VIEW ===== -->
+        <div id="view-dashboard" class="view active fade-in">
+
+          <!-- HERO: big picture with text on top -->
+          <section class="relative overflow-hidden rounded-3xl min-h-[560px] md:min-h-[620px] flex flex-col justify-between text-white mb-10">
+            <img id="hero-img" alt="Barber giving a fresh cut" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/45"></div>
+
+            <div class="relative p-6 md:p-10 pt-8 md:pt-12 max-w-xl">
+              <p class="text-[10px] md:text-xs tracking-[0.3em] uppercase text-white/80 mb-4">Fades &mdash; Beards &mdash; Styles</p>
+              <h2 class="font-display text-5xl md:text-7xl leading-[1.05] font-light">Cuts That <span class="italic text-brand-300">Inspire</span></h2>
+              <p class="mt-4 text-sm md:text-base text-white/85 max-w-sm">Fresh fades, clean lines and sharp styles for men, women &amp; kids in agbor, Delta.</p>
+
+              <div class="mt-6 flex flex-wrap items-center gap-3">
+                <button data-view="booking" class="flex items-center gap-3 pl-5 pr-1.5 py-1.5 rounded-full bg-gray-900/90 hover:bg-gray-900 text-sm font-medium transition">
+                  Book Appointment
+                  <span class="w-9 h-9 rounded-full bg-white text-gray-900 flex items-center justify-center">&rarr;</span>
+                </button>
+                <button id="browse-styles" class="glass-card flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium hover:bg-white/25 transition">
+                  Browse Styles
+                </button>
+              </div>
+            </div>
+
+            <div class="relative p-4 md:p-6 grid grid-cols-1 md:grid-cols-5 gap-3">
+              <div id="hero-featured" class="hidden md:flex md:col-span-2"></div>
+              <div class="glass-card md:col-span-3 rounded-3xl p-4 md:p-5 grid grid-cols-3 divide-x divide-white/25 text-center">
+                <div>
+                  <p class="text-xl md:text-3xl font-semibold">340+</p>
+                  <p class="text-[11px] md:text-xs text-white/75 mt-0.5">Happy Clients</p>
+                </div>
+                <div>
+                  <p class="text-xl md:text-3xl font-semibold">4.9 &#9733;</p>
+                  <p class="text-[11px] md:text-xs text-white/75 mt-0.5">200+ Reviews</p>
+                </div>
+                <div>
+                  <p class="text-xl md:text-3xl font-semibold">15 min</p>
+                  <p class="text-[11px] md:text-xs text-white/75 mt-0.5">Average Wait</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- GALLERY: pictures of our cuts -->
+          <section id="gallery" class="mb-10">
+            <div class="mb-4">
+              <p class="text-[11px] uppercase tracking-[0.25em] text-brand-600 dark:text-brand-400 mb-1">Gallery</p>
+              <h2 class="font-display text-3xl md:text-4xl font-light">Pick Your Style</h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Tap any cut you like, then book it.</p>
+            </div>
+            <div id="gallery-filters" class="flex gap-2 overflow-x-auto pb-3 mb-2"></div>
+            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4"></div>
+          </section>
+
+          <!-- FEATURED PRODUCTS -->
+          <section class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-semibold">Featured Products</h2>
+              <button data-view="shop" class="text-sm text-brand-600 dark:text-brand-400 hover:underline">View all &rarr;</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="featured-products"></div>
+          </section>
+
+          <section class="mt-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <h2 class="font-semibold">Visit us</h2>
+              <p id="home-address" class="text-sm text-gray-500 dark:text-gray-400 truncate"></p>
+            </div>
+            <button data-view="contact" class="flex-shrink-0 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition">Contact &amp; Map</button>
+          </section>
+        </div>
+
+        <!-- ===== SHOP VIEW ===== -->
+        <div id="view-shop" class="view fade-in">
+          <div class="flex flex-wrap items-center gap-2 mb-5">
+            <button class="filter-btn active px-3.5 py-1.5 rounded-full text-sm bg-gray-900 text-white dark:bg-white dark:text-gray-900" data-filter="all">All</button>
+            <button class="filter-btn px-3.5 py-1.5 rounded-full text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" data-filter="clippers">Clippers</button>
+            <button class="filter-btn px-3.5 py-1.5 rounded-full text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" data-filter="oils">Oils & Creams</button>
+            <button class="filter-btn px-3.5 py-1.5 rounded-full text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" data-filter="tools">Tools</button>
+            <button class="filter-btn px-3.5 py-1.5 rounded-full text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" data-filter="kits">Kits</button>
+          </div>
+
+          <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5"></div>
+        </div>
+
+        <!-- ===== BOOKING VIEW ===== -->
+        <div id="view-booking" class="view fade-in">
+          <div class="max-w-2xl mx-auto">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+              <div class="p-5 border-b border-gray-100 dark:border-gray-800">
+                <h2 class="text-lg font-semibold">Book an Appointment</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Unisex services • Oguta, Imo State</p>
+              </div>
+
+              <div class="p-5 space-y-5">
+                <div id="chosen-style" class="hidden"></div>
+                <div>
+                  <label class="block text-sm font-medium mb-2">Select Service</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <label class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-brand-400 transition">
+                      <input type="radio" name="service" value="haircut" class="accent-brand-600" checked>
+                      <div>
+                        <p class="font-medium text-sm">Classic Haircut</p>
+                        <p class="text-xs text-gray-500">₦2,500 • 30–40 mins</p>
+                      </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-brand-400 transition">
+                      <input type="radio" name="service" value="fade" class="accent-brand-600">
+                      <div>
+                        <p class="font-medium text-sm">Skin Fade / Taper</p>
+                        <p class="text-xs text-gray-500">₦3,500 • 45 mins</p>
+                      </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-brand-400 transition">
+                      <input type="radio" name="service" value="style" class="accent-brand-600">
+                      <div>
+                        <p class="font-medium text-sm">Wash + Style (Unisex)</p>
+                        <p class="text-xs text-gray-500">₦4,000 • 50 mins</p>
+                      </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-brand-400 transition">
+                      <input type="radio" name="service" value="beard" class="accent-brand-600">
+                      <div>
+                        <p class="font-medium text-sm">Beard Trim & Shape</p>
+                        <p class="text-xs text-gray-500">₦2,000 • 20 mins</p>
+                      </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-brand-400 transition">
+                      <input type="radio" name="service" value="kids" class="accent-brand-600">
+                      <div>
+                        <p class="font-medium text-sm">Kids Cut</p>
+                        <p class="text-xs text-gray-500">₦2,000 • 25 mins</p>
+                      </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-brand-400 transition">
+                      <input type="radio" name="service" value="full" class="accent-brand-600">
+                      <div>
+                        <p class="font-medium text-sm">Full Package</p>
+                        <p class="text-xs text-gray-500">₦6,500 • 75 mins</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium mb-2">Preferred Date</label>
+                  <input type="date" id="booking-date" class="w-full sm:w-64 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/40">
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium mb-2">Available Time</label>
+                  <div class="flex flex-wrap gap-2" id="time-slots">
+                    <button type="button" class="time-slot px-3.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm hover:border-brand-400 transition">09:00 AM</button>
+                    <button type="button" class="time-slot px-3.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm hover:border-brand-400 transition">10:00 AM</button>
+                    <button type="button" class="time-slot px-3.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm hover:border-brand-400 transition">11:30 AM</button>
+                    <button type="button" class="time-slot px-3.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm hover:border-brand-400 transition">01:00 PM</button>
+                    <button type="button" class="time-slot px-3.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm hover:border-brand-400 transition">02:30 PM</button>
+                    <button type="button" class="time-slot px-3.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm hover:border-brand-400 transition">04:00 PM</button>
+                    <button type="button" class="time-slot px-3.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm hover:border-brand-400 transition">05:30 PM</button>
+                    <button type="button" class="time-slot px-3.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm hover:border-brand-400 transition">07:00 PM</button>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-medium mb-1.5">Your Name</label>
+                    <input type="text" id="customer-name" placeholder="Full name" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/40">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1.5">Phone Number</label>
+                    <input type="tel" id="customer-phone" placeholder="e.g. 0803 000 0000" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/40">
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium mb-1.5">Notes (optional)</label>
+                  <textarea id="booking-notes" rows="2" placeholder="Any preference or request..." class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/40"></textarea>
+                </div>
+
+                <button id="confirm-booking" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium transition">
+                  Confirm Appointment
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CONTACT VIEW ===== -->
+        <div id="view-contact" class="view fade-in">
+          <div class="max-w-2xl mx-auto space-y-5">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+              <div class="p-5 border-b border-gray-100 dark:border-gray-800">
+                <h2 class="font-display text-2xl">Contact Us</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Call, chat or come visit. We'd love to see you.</p>
+              </div>
+              <div id="contact-list" class="p-3 space-y-1"></div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+              <iframe id="map-frame" title="Our location" class="w-full h-72 border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <div class="p-4">
+                <a id="directions-btn" target="_blank" rel="noopener" class="block text-center w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium transition">Get Directions</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== ORDERS VIEW ===== -->
+        <div id="view-orders" class="view fade-in">
+          <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+            <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <h2 class="font-semibold">My Orders & Cart</h2>
+              <span id="orders-total" class="text-sm text-gray-500">₦0.00</span>
+            </div>
+            <div id="cart-items" class="divide-y divide-gray-100 dark:divide-gray-800">
+              <div class="p-8 text-center text-gray-400 text-sm">
+                Your cart is empty. Browse the shop and add products.
+              </div>
+            </div>
+            <div id="checkout-area" class="hidden p-5 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800">
+              <div class="flex items-center justify-between mb-4">
+                <span class="font-medium">Total</span>
+                <span id="checkout-total" class="text-xl font-bold">₦0</span>
+              </div>
+              <button id="checkout-btn" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium transition">
+                Proceed to Checkout (Demo)
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Style popup -->
+  <div id="style-modal" class="fixed inset-0 z-[60] hidden items-end md:items-center justify-center bg-black/70 md:p-6">
+    <div class="relative bg-white dark:bg-gray-900 w-full md:max-w-md rounded-t-3xl md:rounded-3xl overflow-hidden">
+      <button id="style-close" class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/50 text-white">&#10005;</button>
+      <img id="style-img" alt="" class="w-full max-h-[60vh] object-cover">
+      <div class="p-5">
+        <p id="style-service" class="text-xs uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-1"></p>
+        <h3 id="style-name" class="font-display text-2xl mb-4"></h3>
+        <button id="style-book" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium transition">Book this style</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-auto bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-5 py-3 rounded-xl shadow-lg text-sm font-medium opacity-0 pointer-events-none transition-opacity duration-300 z-50 text-center md:text-left">
+    Added to cart
+  </div>
+
+  <script>
+    // Product data with real images
+    const products = [
+      {
+        id: 1,
+        name: "Professional Hair Clipper",
+        category: "clippers",
+        price: 28500,
+        img: "IMG-20261118-WA0027(1).jpg",
+        desc: "Cordless, long battery, premium blades"
+      },
+      {
+        id: 2,
+        name: "Beard Trimmer Set",
+        category: "clippers",
+        price: 25500,
+        img: "IMG-20261118-WA0024.jpg",
+        desc: "Precision trimmer with 5 attachments"
+      },
+      {
+        id: 3,
+        name: "aprons and neck duster",
+        category: "oils",
+        price: 4500,
+        img: "IMG-20261118-WA0021.jpg",
+        desc: "Nourishing oil for all hair types"
+      },
+      {
+        id: 4,
+        name: "Shea Butter Cream",
+        category: "oils",
+        price: 3200,
+        img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=400&fit=crop",
+        desc: "Deep moisture, unisex formula"
+      },
+      {
+        id: 5,
+        name: "Wide-Tooth Comb Pack",
+        category: "tools",
+        price: 1800,
+        img: "IMG-20261118-WA0020.jpg",
+        desc: "3-piece detangling set"
+      },
+      {
+        id: 6,
+        name: "Boar Bristle Brush",
+        category: "tools",
+        price: 5500,
+        img: "IMG-20261118-WA0019.jpg",
+        desc: "Natural bristles for healthy hair"
+      },
+      {
+        id: 7,
+        name: "Barber Cape (Unisex)",
+        category: "tools",
+        price: 4200,
+        img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&h=400&fit=crop",
+        desc: "Waterproof, adjustable neck"
+      },
+      {
+        id: 8,
+        name: "Aftercare Kit",
+        category: "kits",
+        price: 9800,
+        img: "https://images.unsplash.com/photo-1571875257727-256c39da42af?w=400&h=400&fit=crop",
+        desc: "Oil + cream + serum set"
+      },
+      {
+        id: 9,
+        name: "Fade Blade Oil",
+        category: "oils",
+        price: 2500,
+        img: "images (1).jpeg",
+        desc: "Keeps clippers running smooth"
+      },
+      {
+        id: 10,
+        name: "Kids Clipper Mini",
+        category: "clippers",
+        price: 15500,
+        img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&h=400&fit=crop",
+        desc: "Quiet & safe for children"
+      },
+      {
+        id: 11,
+        name: "Styling Gel Strong Hold",
+        category: "oils",
+        price: 2800,
+        img: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400&h=400&fit=crop",
+        desc: "All-day hold, no flakes"
+      },
+      {
+        id: 12,
+        name: "Full Starter Kit",
+        category: "kits",
+        price: 42500,
+        img: "IMG-20261118-WA0018.jpg",
+        desc: "Clipper + oil + comb + cape"
+      },
+    ];
+
+    // =====================================================
+    //  EDIT HERE: your home page pictures
+    //  - HERO_IMAGE = the big picture at the top
+    //  - gallery    = your haircut photos. Add a new line for each new photo.
+    //    service must be one of: fade, haircut, beard, kids, style, full
+    //    Use your own photos like: img: "images/my-cut-1.jpg"
+    // =====================================================
+    const HERO_IMAGE = "IMG-20261118-WA0055.jpg";
+
+    const gallery = [
+      { img: "IMG-20261118-WA0045.jpg", name: "Skin Fade", service: "fade" },
+      { img: "IMG-20261118-WA0055.jpg", name: "Classic Taper", service: "fade" },
+      { img: "IMG-20261118-WA0041.jpg", name: "Low Cut", service: "haircut" },
+      { img: "IMG-20261118-WA0044.jpg", name: "Clean Line-Up", service: "haircut" },
+      { img: "IMG-20261118-WA0057.jpg", name: "Beard Shape-Up", service: "beard" },
+      { img: "IMG-20261118-WA0054.jpg", name: "Kids Cut", service: "kids" },
+      { img: "IMG-20261118-WA0034.jpg", name: "Wash & Style", service: "style" },
+      { img: "IMG-20261118-WA0048.jpg", name: "Full Package", service: "full" },
+    ];
+
+    const serviceNames = {
+      fade: "Skin Fade / Taper", haircut: "Classic Haircut", beard: "Beard Trim & Shape",
+      kids: "Kids Cut", style: "Wash + Style", full: "Full Package"
+    };
+    const galleryFilters = [["all","All"],["fade","Fades"],["haircut","Haircuts"],["beard","Beards"],["kids","Kids"],["style","Styles"],["full","Packages"]];
+    const FALLBACK_IMG = "https://placehold.co/600x750/e5e7eb/9ca3af?text=Photo";
+    let galleryFilter = "all";
+    let chosenStyle = null;
+
+    // =====================================================
+    //  EDIT HERE: your contact details
+    //  - phone: how it shows and dials, e.g. "0803 123 4567"
+    //  - whatsapp: number WITHOUT + or spaces, starting with 234
+    //    (0803 123 4567 becomes 2348031234567)
+    //  - email: leave "" to hide it
+    //  - mapQuery: what Google Maps should search for. Best is your
+    //    shop name + street + town, exactly as it shows on Google Maps
+    // =====================================================
+    const CONTACT = {
+      phone: "+2347081433088",
+      whatsapp: "2347042763831",
+      email: "boyfavour12@gmail.com",
+      address: "abraka road, opposite isi filing station, agbor, Delta State",
+      hours: "Open daily, 9AM – 8PM",
+      mapQuery: "agbor, Delta State, Nigeria"
+    };
+
+    let cart = [];
+    let selectedTime = null;
+    let currentFilter = "all";
+
+    // Mobile sidebar
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    const openBtn = document.getElementById("open-sidebar");
+    const closeBtn = document.getElementById("close-sidebar");
+
+    function openSidebar() {
+      sidebar.classList.add("open");
+      overlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+    function closeSidebar() {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    openBtn.addEventListener("click", openSidebar);
+    closeBtn.addEventListener("click", closeSidebar);
+    overlay.addEventListener("click", closeSidebar);
+
+    // Theme
+    const html = document.documentElement;
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeLabel = document.getElementById("theme-label");
+
+    function setTheme(mode) {
+      if (mode === "dark") {
+        html.classList.add("dark");
+        themeLabel.textContent = "Light Mode";
+        localStorage.setItem("theme", "dark");
+      } else {
+        html.classList.remove("dark");
+        themeLabel.textContent = "Dark Mode";
+        localStorage.setItem("theme", "light");
+      }
+    }
+
+    setTheme(localStorage.getItem("theme") || "light");
+    themeToggle.addEventListener("click", () => {
+      setTheme(html.classList.contains("dark") ? "light" : "dark");
+    });
+
+    // Navigation
+    const views = document.querySelectorAll(".view");
+    const navItems = document.querySelectorAll(".nav-item");
+    const pageTitle = document.getElementById("page-title");
+    const pageSubtitle = document.getElementById("page-subtitle");
+
+    const titles = {
+      dashboard: ["Home", "Welcome to Favorite Unisex Salon"],
+      shop: ["Shop Products", "Premium barbing & unisex products"],
+      booking: ["Book Appointment", "Choose service, date & time"],
+      orders: ["My Orders", "Cart and order history"],
+      contact: ["Contact Us", "Find us & get in touch"]
+    };
+
+    function switchView(name) {
+      views.forEach(v => v.classList.remove("active"));
+      const target = document.getElementById("view-" + name);
+      if (target) {
+        target.classList.add("active", "fade-in");
+      }
+      navItems.forEach(n => n.classList.remove("active"));
+      document.querySelector(`.nav-item[data-view="${name}"]`)?.classList.add("active");
+      if (titles[name]) {
+        pageTitle.textContent = titles[name][0];
+        pageSubtitle.textContent = titles[name][1];
+      }
+      closeSidebar();
+      if (name === "shop") renderProducts();
+      if (name === "orders") renderCart();
+      document.querySelector("main").scrollTop = 0;
+    }
+
+    document.querySelectorAll("[data-view]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+        const filter = btn.dataset.filter;
+        if (filter) {
+          currentFilter = filter;
+          document.querySelectorAll(".filter-btn").forEach(b => {
+            b.classList.remove("active", "bg-gray-900", "text-white", "dark:bg-white", "dark:text-gray-900");
+            b.classList.add("bg-white", "dark:bg-gray-800", "border", "border-gray-200", "dark:border-gray-700");
+            if (b.dataset.filter === filter) {
+              b.classList.add("active", "bg-gray-900", "text-white", "dark:bg-white", "dark:text-gray-900");
+              b.classList.remove("bg-white", "dark:bg-gray-800", "border", "border-gray-200", "dark:border-gray-700");
+            }
+          });
+        }
+        switchView(view);
+      });
+    });
+
+    function formatPrice(n) {
+      return "₦" + n.toLocaleString();
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("products-grid");
+      let list = currentFilter === "all" ? products : products.filter(p => p.category === currentFilter);
+
+      grid.innerHTML = list.map(p => `
+        <div class="product-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm transition duration-200">
+          <div class="h-32 sm:h-40 bg-gray-100 dark:bg-gray-800 overflow-hidden">
+            <img src="${p.img}" alt="${p.name}" class="product-img" loading="lazy" onerror="this.src='https://placehold.co/400x400/e5e7eb/9ca3af?text=Product'">
+          </div>
+          <div class="p-3 sm:p-4">
+            <p class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wide mb-0.5">${p.category}</p>
+            <h3 class="font-medium text-xs sm:text-sm mb-1 leading-tight">${p.name}</h3>
+            <p class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2 hidden sm:block">${p.desc}</p>
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-semibold text-sm text-brand-700 dark:text-brand-400">${formatPrice(p.price)}</span>
+              <button onclick="addToCart(${p.id})" class="px-2.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium transition whitespace-nowrap">
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderFeatured() {
+      const container = document.getElementById("featured-products");
+      container.innerHTML = products.slice(0, 4).map(p => `
+        <div class="flex gap-3 p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+          <div class="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+            <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover" loading="lazy">
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="font-medium text-sm truncate">${p.name}</p>
+            <p class="text-xs text-gray-500">${formatPrice(p.price)}</p>
+            <button onclick="addToCart(${p.id})" class="mt-1 text-xs text-brand-600 dark:text-brand-400 hover:underline">Add to cart</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => {
+          b.classList.remove("active", "bg-gray-900", "text-white", "dark:bg-white", "dark:text-gray-900");
+          b.classList.add("bg-white", "dark:bg-gray-800", "border", "border-gray-200", "dark:border-gray-700");
+        });
+        btn.classList.add("active", "bg-gray-900", "text-white", "dark:bg-white", "dark:text-gray-900");
+        btn.classList.remove("bg-white", "dark:bg-gray-800", "border", "border-gray-200", "dark:border-gray-700");
+        currentFilter = btn.dataset.filter;
+        renderProducts();
+      });
+    });
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      const existing = cart.find(c => c.id === id);
+      if (existing) existing.qty += 1;
+      else cart.push({ ...product, qty: 1 });
+      updateCartUI();
+      showToast(`${product.name} added`);
+    }
+
+    function removeFromCart(id) {
+      cart = cart.filter(c => c.id !== id);
+      updateCartUI();
+      renderCart();
+    }
+
+    function updateCartUI() {
+      const count = cart.reduce((s, c) => s + c.qty, 0);
+      document.getElementById("cart-count").textContent = count;
+      document.getElementById("order-badge").textContent = count;
+    }
+
+    function renderCart() {
+      const container = document.getElementById("cart-items");
+      const checkoutArea = document.getElementById("checkout-area");
+      const totalEl = document.getElementById("orders-total");
+      const checkoutTotal = document.getElementById("checkout-total");
+
+      if (cart.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-gray-400 text-sm">Your cart is empty. Browse the shop and add products.</div>`;
+        checkoutArea.classList.add("hidden");
+        totalEl.textContent = "₦0.00";
+        return;
+      }
+
+      const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+      totalEl.textContent = formatPrice(total);
+      checkoutTotal.textContent = formatPrice(total);
+      checkoutArea.classList.remove("hidden");
+
+      container.innerHTML = cart.map(c => `
+        <div class="p-4 flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+            <img src="${c.img}" alt="${c.name}" class="w-full h-full object-cover">
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-sm truncate">${c.name}</p>
+            <p class="text-xs text-gray-500">${formatPrice(c.price)} × ${c.qty}</p>
+          </div>
+          <p class="font-medium text-sm">${formatPrice(c.price * c.qty)}</p>
+          <button onclick="removeFromCart(${c.id})" class="text-gray-400 hover:text-red-500 text-sm p-1">✕</button>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("cart-btn").addEventListener("click", () => switchView("orders"));
+    document.getElementById("checkout-btn")?.addEventListener("click", () => {
+      showToast("Checkout is demo only — connect payment later");
+    });
+
+    document.querySelectorAll(".time-slot").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".time-slot").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedTime = btn.textContent;
+      });
+    });
+
+    const dateInput = document.getElementById("booking-date");
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.min = today;
+    dateInput.value = today;
+
+    document.getElementById("confirm-booking").addEventListener("click", () => {
+      const name = document.getElementById("customer-name").value.trim();
+      const phone = document.getElementById("customer-phone").value.trim();
+      const date = dateInput.value;
+
+      if (!name || !phone) {
+        showToast("Please enter your name and phone number");
+        return;
+      }
+      if (!selectedTime) {
+        showToast("Please select a time slot");
+        return;
+      }
+
+      // Send the booking to your WhatsApp
+      const serviceKey = document.querySelector('input[name="service"]:checked').value;
+      const notes = document.getElementById("booking-notes").value.trim();
+      const lines = [
+        "*New Appointment Request*",
+        "Name: " + name,
+        "Phone: " + phone,
+        "Service: " + (serviceNames[serviceKey] || serviceKey),
+        "Date: " + date,
+        "Time: " + selectedTime
+      ];
+      if (chosenStyle) lines.push("Style picked: " + chosenStyle.name);
+      if (notes) lines.push("Notes: " + notes);
+      const waUrl = "https://wa.me/" + CONTACT.whatsapp + "?text=" + encodeURIComponent(lines.join("\n"));
+      window.open(waUrl, "_blank");
+
+      showToast("Almost done! Tap Send in WhatsApp to confirm your booking");
+      clearStyle();
+      document.getElementById("customer-name").value = "";
+      document.getElementById("customer-phone").value = "";
+      document.getElementById("booking-notes").value = "";
+      document.querySelectorAll(".time-slot").forEach(b => b.classList.remove("selected"));
+      selectedTime = null;
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.remove("opacity-0");
+      t.classList.add("opacity-100");
+      setTimeout(() => {
+        t.classList.remove("opacity-100");
+        t.classList.add("opacity-0");
+      }, 2800);
+    }
+
+    // ===== HERO + GALLERY =====
+    const heroImg = document.getElementById("hero-img");
+    heroImg.onerror = () => { heroImg.onerror = null; heroImg.src = FALLBACK_IMG; };
+    heroImg.src = HERO_IMAGE;
+
+    document.getElementById("browse-styles").addEventListener("click", () => {
+      document.getElementById("gallery").scrollIntoView({ behavior: "smooth" });
+    });
+
+    function renderHeroFeatured() {
+      const g = gallery[0];
+      if (!g) return;
+      document.getElementById("hero-featured").innerHTML = `
+        <div class="glass-card rounded-3xl p-3 flex items-center gap-3 w-full">
+          <img src="${g.img}" alt="${g.name}" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0" onerror="this.src='${FALLBACK_IMG}'">
+          <div class="min-w-0">
+            <p class="text-[10px] uppercase tracking-widest text-white/70">Featured Style</p>
+            <p class="font-display text-xl leading-tight truncate">${g.name}</p>
+            <button onclick="openStyle(0)" class="mt-1 text-xs text-white/90 hover:underline">View style &rarr;</button>
+          </div>
+        </div>`;
+    }
+
+    function renderGalleryFilters() {
+      document.getElementById("gallery-filters").innerHTML = galleryFilters.map(([key, label]) => `
+        <button onclick="setGalleryFilter('${key}')" class="g-pill ${key === galleryFilter ? "active" : ""} flex-shrink-0 whitespace-nowrap px-4 py-1.5 rounded-full text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition">${label}</button>
+      `).join("");
+    }
+
+    function setGalleryFilter(key) {
+      galleryFilter = key;
+      renderGalleryFilters();
+      renderGallery();
+    }
+
+    function renderGallery() {
+      const items = gallery
+        .map((g, i) => ({ g, i }))
+        .filter(x => galleryFilter === "all" || x.g.service === galleryFilter);
+
+      const grid = document.getElementById("gallery-grid");
+      if (items.length === 0) {
+        grid.innerHTML = `<p class="col-span-full text-sm text-gray-400 py-6 text-center">No photos here yet. Check back soon!</p>`;
+        return;
+      }
+      grid.innerHTML = items.map(({ g, i }) => `
+        <button onclick="openStyle(${i})" class="group relative block w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-800 text-left">
+          <img src="${g.img}" alt="${g.name}" loading="lazy" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" onerror="this.src='${FALLBACK_IMG}'">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-3 md:p-4 text-white">
+            <p class="text-[10px] uppercase tracking-widest text-white/70">${serviceNames[g.service] || ""}</p>
+            <p class="font-display text-lg leading-tight">${g.name}</p>
+          </div>
+        </button>
+      `).join("");
+    }
+
+    // ===== STYLE POPUP + PICK A STYLE =====
+    const styleModal = document.getElementById("style-modal");
+    let openIndex = 0;
+
+    function openStyle(i) {
+      const g = gallery[i];
+      if (!g) return;
+      openIndex = i;
+      document.getElementById("style-img").src = g.img;
+      document.getElementById("style-name").textContent = g.name;
+      document.getElementById("style-service").textContent = serviceNames[g.service] || "";
+      styleModal.classList.remove("hidden");
+      styleModal.classList.add("flex");
+    }
+
+    function closeStyle() {
+      styleModal.classList.add("hidden");
+      styleModal.classList.remove("flex");
+    }
+
+    document.getElementById("style-close").addEventListener("click", closeStyle);
+    styleModal.addEventListener("click", e => { if (e.target === styleModal) closeStyle(); });
+    document.getElementById("style-book").addEventListener("click", () => bookStyle(openIndex));
+
+    function bookStyle(i) {
+      chosenStyle = gallery[i];
+      closeStyle();
+      const radio = document.querySelector(`input[name="service"][value="${chosenStyle.service}"]`);
+      if (radio) radio.checked = true;
+      renderChosenStyle();
+      document.getElementById("booking-notes").value = "Style I want: " + chosenStyle.name;
+      switchView("booking");
+      showToast(`${chosenStyle.name} selected`);
+    }
+
+    function renderChosenStyle() {
+      const box = document.getElementById("chosen-style");
+      if (!chosenStyle) { box.classList.add("hidden"); box.innerHTML = ""; return; }
+      box.classList.remove("hidden");
+      box.innerHTML = `
+        <div class="flex items-center gap-3 p-3 rounded-2xl bg-brand-50 dark:bg-gray-800 border border-brand-200 dark:border-gray-700">
+          <img src="${chosenStyle.img}" alt="" class="w-14 h-14 rounded-xl object-cover" onerror="this.src='${FALLBACK_IMG}'">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] uppercase tracking-widest text-gray-500">Style you picked</p>
+            <p class="font-medium text-sm truncate">${chosenStyle.name}</p>
+          </div>
+          <button onclick="clearStyle()" class="p-2 text-gray-400 hover:text-red-500">&#10005;</button>
+        </div>`;
+    }
+
+    function clearStyle() {
+      chosenStyle = null;
+      renderChosenStyle();
+    }
+
+    // ===== CONTACT PAGE =====
+    function renderContact() {
+      const icon = d => `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="${d}"/></svg>`;
+      const rows = [
+        { show: CONTACT.phone, label: "Call us", text: CONTACT.phone, href: "tel:" + CONTACT.phone.replace(/\s/g, ""),
+          icon: icon("M3 5a2 2 0 012-2h3.28a1 1 0 01.95.68l1.5 4.5a1 1 0 01-.5 1.2l-2.26 1.13a11 11 0 005.52 5.52l1.13-2.26a1 1 0 011.2-.5l4.5 1.5a1 1 0 01.68.95V19a2 2 0 01-2 2h-1C9.72 21 3 14.28 3 6V5z") },
+        { show: CONTACT.whatsapp, label: "WhatsApp", text: "Chat with us", href: "https://wa.me/" + CONTACT.whatsapp,
+          icon: icon("M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.42-4.03 8-9 8a9.9 9.9 0 01-4-.84L3 20l1.3-3.9A7.6 7.6 0 013 12c0-4.42 4.03-8 9-8s9 3.58 9 8z") },
+        { show: CONTACT.email, label: "Email", text: CONTACT.email, href: "mailto:" + CONTACT.email,
+          icon: icon("M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z") },
+        { show: CONTACT.address, label: "Address", text: CONTACT.address, href: "",
+          icon: icon("M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z") },
+        { show: CONTACT.hours, label: "Opening hours", text: CONTACT.hours, href: "",
+          icon: icon("M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z") },
+      ].filter(r => r.show);
+
+      document.getElementById("contact-list").innerHTML = rows.map(r => {
+        const inner = `
+          <div class="w-10 h-10 rounded-xl bg-brand-100 dark:bg-gray-800 text-brand-700 dark:text-brand-300 flex items-center justify-center flex-shrink-0">${r.icon}</div>
+          <div class="min-w-0">
+            <p class="text-xs text-gray-500 dark:text-gray-400">${r.label}</p>
+            <p class="text-sm font-medium break-words">${r.text}</p>
+          </div>`;
+        return r.href
+          ? `<a href="${r.href}" target="_blank" rel="noopener" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/60 transition">${inner}</a>`
+          : `<div class="flex items-center gap-3 p-3">${inner}</div>`;
+      }).join("");
+
+      const q = encodeURIComponent(CONTACT.mapQuery);
+      document.getElementById("map-frame").src = "https://www.google.com/maps?q=" + q + "&output=embed";
+      document.getElementById("directions-btn").href = "https://www.google.com/maps/search/?api=1&query=" + q;
+      document.getElementById("home-address").textContent = CONTACT.address;
+    }
+
+    renderContact();
+    renderHeroFeatured();
+    renderGalleryFilters();
+    renderGallery();
+    renderFeatured();
+    renderProducts();
+  </script>
+</body>    
+</html></div>
